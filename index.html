@@ -19,7 +19,7 @@
     /* Contenedor de controles flotante abajo */
     #controls {
         position: absolute;
-        bottom: 5px;
+        bottom: 1px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
@@ -31,9 +31,9 @@
     }
     #controls button {
         margin: 0 1px;
-        font-size: 10px;
-        padding: 4px 5px;
-        background: rgba(255,255,255,0.7);
+        font-size: 15px;
+        padding: 1px 4px;
+        background: rgba(0,255,0,0.5);
         border: none;
         border-radius: 5px;
         cursor: pointer;
@@ -53,9 +53,9 @@
 <body>
 <div id="player"></div>
 <div id="controls">
-    <button id="prev">◀◀</button>
+    <button id="prev">◀</button>
     <div id="current-title">CANAL 10</div>
-    <button id="next">▶▶</button>
+    <button id="next">▶</button>
 </div>
 
 <script>
@@ -65,18 +65,24 @@ const links = [
             { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
             { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
             { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-            { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
+            { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
+			{ title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
             { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
             { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
             { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
+			{ title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
             { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
             { title: "DW", type: "youtube", url: "g3vbKsbx87I" },
             { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
             { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
             { title: "CHV", type: "youtube", url: "HbOheEcq5KE" },
             { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
-           { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
+            { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
+            { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
 			{ title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
+			{ title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
+			{ title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
+			{ title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
             { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
             { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
 			
@@ -126,4 +132,3 @@ nextButton.addEventListener('click', ()=>{
 </script>
 </body>
 </html>
-
