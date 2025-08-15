@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<title>YouTube y M3U8</title>
+<title>YouTube, M3U8 y MPEG-DASH</title>
 <style>
     html, body {
         height: 100%;
@@ -16,7 +16,7 @@
         width: 100%;
         position: relative;
     }
-    /* Contenedor de controles flotante abajo */
+    /* Controles flotante abajo */
     #controls {
         position: absolute;
         bottom: 1px;
@@ -41,7 +41,7 @@
     }
     #controls button:focus {
         background: rgba(255,0,0,0.7);
-		outline: none;
+        outline: none;
     }
     #current-title {
         color: gold;
@@ -51,6 +51,7 @@
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 </head>
 <body>
 <div id="player"></div>
@@ -62,36 +63,35 @@
 
 <script>
 const links = [
-    
-
-            { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-	        { title: "CANAL 10", type: "m3u8", url: "https://stream.arcast.net:4443/c10rionegro/ngrp:c10rionegro_all/chunklist_w193424370_b1142317_tkd293emF0b2tlbmVuZHRpbWU9MTc1NTIzOTg4MCZ3b3d6YXRva2Vuc3RhcnR0aW1lPTAmd293emF0b2tlbmhhc2g9QV9YbUd0SHp4ZzR4MmV5Y2d1bHNNT1FiajFlVHM3WXotTXJ4YWI5WEYwTT0=.m3u8" },
-            { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
-            { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-            { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
-	        { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
-			{ title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
-            { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
-            { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
-            { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
-			{ title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
-	        { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
-            { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
-            { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
-	        { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
-            { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
-            { title: "CHV", type: "youtube", url: "HbOheEcq5KE" },
-            { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
-            { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
-            { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
-			{ title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
-	        { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
-			{ title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
-			{ title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
-			{ title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
-            { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
-            { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
-			
+    { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
+    { title: "CANAL 10", type: "m3u8", url: "https://stream.arcast.net:4443/c10rionegro/ngrp:c10rionegro_all/chunklist_w193424370_b1142317_tkd293emF0b2tlbmVuZHRpbWU9MTc1NTIzOTg4MCZ3b3d6YXRva2Vuc3RhcnR0aW1lPTAmd293emF0b2tlbmhhc2g9QV9YbUd0SHp4ZzR4MmV5Y2d1bHNNT1FiajFlVHM3WXotTXJ4YWI5WEYwTT0=.m3u8" },
+  { title: "AMERICA", type: "mpd", url: "https://csc-axs-edge01.sensa.com.ar/live/eds/America/live_dash_cld/America.mpd" },
+    { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
+    { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
+    { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
+    { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
+    { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
+    { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
+    { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
+    { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
+    { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
+    { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
+    { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
+    { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
+    { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
+    { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
+    { title: "CHV", type: "youtube", url: "HbOheEcq5KE" },
+    { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
+    { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
+    { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
+    { title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
+    { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
+    { title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
+    { title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
+    { title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
+    { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
+    { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
+   
 ];
 
 let currentIndex = 0;
@@ -105,12 +105,11 @@ function updatePlayer(index){
     currentIndex = index;
     currentTitle.textContent = links[currentIndex].title;
 
-    // Limpiar reproductor anterior
     playerDiv.innerHTML = "";
-    if(player){ player.destroy(); player=null; }
+    if(player && player.destroy){ player.destroy(); player = null; }
 
     if(links[currentIndex].type === "youtube"){
-        playerDiv.innerHTML = `<iframe id="youtube-player" width="100%" height="100%" 
+        playerDiv.innerHTML = `<iframe width="100%" height="100%" 
         src="https://www.youtube.com/embed/${links[currentIndex].url}?autoplay=1&mute=0" 
         frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     } else if(links[currentIndex].type === "m3u8"){
@@ -122,6 +121,19 @@ function updatePlayer(index){
             autoPlay: true,
             mute: false
         });
+    } else if(links[currentIndex].type === "mpd"){
+        let video = document.createElement("video");
+        video.setAttribute("controls", "true");
+        video.setAttribute("autoplay", "true");
+        video.style.width = "100%";
+        video.style.height = "100%";
+        playerDiv.appendChild(video);
+
+        let dashPlayer = dashjs.MediaPlayer().create();
+        dashPlayer.updateSettings({
+            streaming: { lowLatencyEnabled: true, liveDelay: 4 }
+        });
+        dashPlayer.initialize(video, links[currentIndex].url, true);
     }
 }
 
@@ -138,17 +150,3 @@ nextButton.addEventListener('click', ()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
