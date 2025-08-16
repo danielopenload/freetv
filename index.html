@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<title>YouTube, M3U8 y MPEG-DASH</title>
+<title>YouTube y M3U8 - Zapping</title>
 <style>
     html, body {
         height: 100%;
@@ -10,103 +10,95 @@
         padding: 0;
         background: black;
         overflow: hidden;
+        font-family: Arial, sans-serif;
     }
     #player {
         height: 100%;
         width: 100%;
         position: relative;
     }
-    /* Controles flotante abajo */
-    #controls {
+
+    /* Barra inferior estilo zapping */
+    #zapping {
         position: absolute;
-        bottom: 1px;
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(0,0,0,0.7);
         display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Firefox */
+    }
+    #zapping::-webkit-scrollbar {
+        display: none; /* Chrome, Safari */
+    }
+    .channel {
+        display: inline-flex;
         align-items: center;
-        background: rgba(0,0,0,0.2);
-        padding: 2px 5px;
-        border-radius: 10px;
-        z-index: 1000;
-    }
-    #controls button {
-        margin: 0 1px;
-        font-size: 10px;
-        color: white;
-        padding: 1px 4px;
-        background: rgba(0,255,0,0.0);
-        border: 1px solid white;
-        border-radius: 5px;
+        justify-content: center;
+        min-width: 120px;
+        padding: 10px;
         cursor: pointer;
+        color: white;
+        font-size: 14px;
+        border-right: 1px solid rgba(255,255,255,0.2);
     }
-    #controls button:focus {
-        background: rgba(255,0,0,0.7);
-        outline: none;
+    .channel:hover {
+        background: rgba(255,255,255,0.2);
     }
-    #current-title {
-        color: gold;
-        font-size: 15px;
-        margin: 0 10px;
+    .active {
+        background: rgba(255,215,0,0.3);
         font-weight: bold;
+        color: gold;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 </head>
 <body>
 <div id="player"></div>
-<div id="controls">
-    <button id="prev">◀</button>
-    <div id="current-title">CANAL 10</div>
-    <button id="next">▶</button>
-</div>
+<div id="zapping"></div>
 
 <script>
 const links = [
     { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-    { title: "CANAL 10", type: "m3u8", url: "https://stream.arcast.net:4443/c10rionegro/ngrp:c10rionegro_all/chunklist_w1549657860_b1142317_tkd293emF0b2tlbmVuZHRpbWU9MTc1NTMxNDA0MCZ3b3d6YXRva2Vuc3RhcnR0aW1lPTAmd293emF0b2tlbmhhc2g9QTJocmVYMHY1bV9WUXhFVk82b3FyT1ptR3owdXpXOGh1V05aSGhyRjgyOD0=.m3u8" },
+    { title: "CANAL 10", type: "m3u8", url: "https://stream.arcast.net:4443/c10rionegro/ngrp:c10rionegro_all/chunklist_w1549657860_b1142317.m3u8" },
     { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
     { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-    { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
     { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
     { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
     { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
     { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
     { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
     { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
-    { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
-    { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
     { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
     { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
-    { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
-    { title: "EURONEWS", type: "youtube", url: "O9mOtdZ-nSk" },
-    { title: "CHV", type: "youtube", url: "H3AFMMYG_tU" },
-    { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
-    { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
-    { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
-    { title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
-    { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
-    { title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
-    { title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
-    { title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
     { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
     { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
-   
 ];
 
 let currentIndex = 0;
-const prevButton = document.getElementById('prev');
-const nextButton = document.getElementById('next');
-const currentTitle = document.getElementById('current-title');
 const playerDiv = document.getElementById('player');
+const zappingDiv = document.getElementById('zapping');
 let player;
+
+/* Render de la barra de zapping */
+links.forEach((c, i) => {
+    let div = document.createElement('div');
+    div.className = "channel";
+    div.textContent = c.title;
+    div.addEventListener('click', () => updatePlayer(i));
+    zappingDiv.appendChild(div);
+});
 
 function updatePlayer(index){
     currentIndex = index;
-    currentTitle.textContent = links[currentIndex].title;
-
     playerDiv.innerHTML = "";
     if(player && player.destroy){ player.destroy(); player = null; }
+
+    // Quitar activo anterior y marcar el nuevo
+    [...document.querySelectorAll('.channel')].forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.channel')[currentIndex].classList.add('active');
 
     if(links[currentIndex].type === "youtube"){
         playerDiv.innerHTML = `<iframe width="100%" height="100%" 
@@ -121,36 +113,10 @@ function updatePlayer(index){
             autoPlay: true,
             mute: false
         });
-    } else if(links[currentIndex].type === "mpd"){
-        let video = document.createElement("video");
-        video.setAttribute("controls", "true");
-        video.setAttribute("autoplay", "true");
-        video.style.width = "100%";
-        video.style.height = "100%";
-        playerDiv.appendChild(video);
-
-        let dashPlayer = dashjs.MediaPlayer().create();
-        dashPlayer.updateSettings({
-            streaming: { lowLatencyEnabled: true, liveDelay: 4 }
-        });
-        dashPlayer.initialize(video, links[currentIndex].url, true);
     }
 }
 
 updatePlayer(currentIndex);
-
-prevButton.addEventListener('click', ()=>{
-    if(currentIndex>0) updatePlayer(currentIndex-1);
-    else updatePlayer(links.length-1);
-});
-nextButton.addEventListener('click', ()=>{
-    if(currentIndex<links.length-1) updatePlayer(currentIndex+1);
-    else updatePlayer(0);
-});
 </script>
 </body>
 </html>
-
-
-
-
