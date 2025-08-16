@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Zapping TV - Full Scroll</title>
+<title>Zapping TV - Full Scroll YouTube Fix</title>
 <style>
 body { margin:0; background:black; font-family:Arial; overflow:hidden; }
 #player { width:100vw; height:100vh; outline:none; }
@@ -21,9 +21,9 @@ iframe, video { width:100%; height:100%; object-fit:cover; }
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-// Lista de canales de ejemplo
+// Lista de canales
 const canales = [
-  
+
       { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
     { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
     { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
@@ -57,7 +57,7 @@ const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
 
-// Crear elementos de la barra
+// Crear barra de canales
 canales.forEach(ch=>{
   const div = document.createElement("div");
   div.className = "canal";
@@ -76,6 +76,9 @@ function cargarCanal(ch){
     iframe.frameBorder = 0;
     iframe.allowFullscreen = true;
     playerDiv.appendChild(iframe);
+
+    // Evitar que iframe capture el foco
+    setTimeout(()=>{ document.activeElement.blur(); }, 100);
   } else if(ch.type==="m3u8"){
     const video = document.createElement("video");
     video.autoplay = true; video.controls = false; video.muted = false; video.playsInline = true;
@@ -89,12 +92,11 @@ function cargarCanal(ch){
   }
 }
 
-// Actualizar resaltado y centrar canal activo
+// Actualizar barra y centrar canal activo
 function actualizarBarra(){
   for(let i=0;i<barra.length;i++){
     barra[i].classList.toggle("activo", i===indice);
   }
-  // Calcular scroll para que canal activo quede centrado
   const barraWidth = barraDiv.offsetWidth;
   const canalActivo = barra[indice];
   const canalLeft = canalActivo.offsetLeft;
