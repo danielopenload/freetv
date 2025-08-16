@@ -1,122 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<title>YouTube y M3U8 - Zapping</title>
-<style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: black;
-        overflow: hidden;
-        font-family: Arial, sans-serif;
+  <meta charset="UTF-8">
+  <title>Zapping TV</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
     }
-    #player {
-        height: 100%;
-        width: 100%;
-        position: relative;
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
     }
-
-    /* Barra inferior estilo zapping */
-    #zapping {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(0,0,0,0.7);
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: none; /* Firefox */
+    .barra {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      padding: 10px;
     }
-    #zapping::-webkit-scrollbar {
-        display: none; /* Chrome, Safari */
+    .canal {
+      margin: 0 15px;
+      color: white;
+      font-size: 20px;
+      opacity: 0.6;
+      transition: 0.3s;
     }
-    .channel {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 120px;
-        padding: 10px;
-        cursor: pointer;
-        color: white;
-        font-size: 14px;
-        border-right: 1px solid rgba(255,255,255,0.2);
+    .activo {
+      opacity: 1;
+      font-weight: bold;
+      color: yellow;
     }
-    .channel:hover {
-        background: rgba(255,255,255,0.2);
-    }
-    .active {
-        background: rgba(255,215,0,0.3);
-        font-weight: bold;
-        color: gold;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  </style>
 </head>
 <body>
-<div id="player"></div>
-<div id="zapping"></div>
+  <video id="tv" autoplay controls></video>
 
-<script>
-const links = [
-    { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-    { title: "CANAL 10", type: "m3u8", url: "https://stream.arcast.net:4443/c10rionegro/ngrp:c10rionegro_all/chunklist_w1549657860_b1142317.m3u8" },
-    { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
-    { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-    { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
-    { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
-    { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
-    { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
-    { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
-    { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
-    { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
-    { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
-    { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
-    { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
-];
+  <div class="barra" id="barra">
+    <div class="canal activo">Canal 1</div>
+    <div class="canal">Canal 2</div>
+    <div class="canal">Canal 3</div>
+  </div>
 
-let currentIndex = 0;
-const playerDiv = document.getElementById('player');
-const zappingDiv = document.getElementById('zapping');
-let player;
+  <script>
+    const canales = [
+      "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8",
+      "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8",
+      "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8"
+    ];
 
-/* Render de la barra de zapping */
-links.forEach((c, i) => {
-    let div = document.createElement('div');
-    div.className = "channel";
-    div.textContent = c.title;
-    div.addEventListener('click', () => updatePlayer(i));
-    zappingDiv.appendChild(div);
-});
+    const video = document.getElementById("tv");
+    const barra = document.getElementById("barra").children;
 
-function updatePlayer(index){
-    currentIndex = index;
-    playerDiv.innerHTML = "";
-    if(player && player.destroy){ player.destroy(); player = null; }
+    let indice = 0;
+    video.src = canales[indice];
 
-    // Quitar activo anterior y marcar el nuevo
-    [...document.querySelectorAll('.channel')].forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.channel')[currentIndex].classList.add('active');
-
-    if(links[currentIndex].type === "youtube"){
-        playerDiv.innerHTML = `<iframe width="100%" height="100%" 
-        src="https://www.youtube.com/embed/${links[currentIndex].url}?autoplay=1&mute=0" 
-        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    } else if(links[currentIndex].type === "m3u8"){
-        player = new Clappr.Player({
-            source: links[currentIndex].url,
-            height: "100%",
-            width: "100%",
-            parentId: "#player",
-            autoPlay: true,
-            mute: false
-        });
+    function actualizar() {
+      for (let i = 0; i < barra.length; i++) {
+        barra[i].classList.remove("activo");
+      }
+      barra[indice].classList.add("activo");
     }
-}
 
-updatePlayer(currentIndex);
-</script>
+    // Detección de teclas (funciona en Smart TV)
+    document.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowRight": // derecha
+          indice = (indice + 1) % canales.length;
+          actualizar();
+          break;
+        case "ArrowLeft": // izquierda
+          indice = (indice - 1 + canales.length) % canales.length;
+          actualizar();
+          break;
+        case "Enter": // OK
+        case "OK":    // algunas TVs usan "OK"
+          video.src = canales[indice];
+          video.play();
+          break;
+      }
+    });
+  </script>
 </body>
 </html>
