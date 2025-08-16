@@ -10,8 +10,18 @@ body { margin:0; background:black; font-family:Arial; overflow:hidden; }
   position:absolute; top:0; left:0; width:100%; height:100%;
   z-index:10; background:transparent;
 }
-.barra { position:fixed; bottom:0; width:100%; display:flex; justify-content:center;
-        padding:2px 5px; background:rgba(0,0,0,0.2); overflow:hidden; }
+.barra {
+  position: fixed;
+  bottom: 0;
+  width: 45%;               /* ancho de la barra */
+  left: 50%;                /* mover al centro horizontal */
+  transform: translateX(-50%); /* ajustar para que quede perfectamente centrada */
+  display: flex;
+  justify-content: center;
+  padding: 2px 5px;
+  background: rgba(0,0,0,0.4);
+  overflow: hidden; 
+}
 .canal { 
     flex:0 0 auto;
     margin:0 5px; 
@@ -139,6 +149,7 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
 
 
 
