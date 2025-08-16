@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Zapping TV Mejorado</title>
+<title>Zapping TV Centro</title>
 <style>
   body {
     margin: 0;
@@ -23,9 +23,9 @@
     background: rgba(0,0,0,0.7);
     display: flex;
     overflow-x: auto;
-    padding: 4px 5px; /* barra más delgada */
+    padding: 4px 5px;
     scroll-behavior: smooth;
-    outline: none; /* elimina borde amarillo */
+    outline: none;
   }
   .barra:focus,
   .barra:hover {
@@ -40,6 +40,7 @@
     transition: 0.3s;
     white-space: nowrap;
     border-radius: 5px;
+    flex: 0 0 auto;
   }
   .canal.activo {
     opacity: 1;
@@ -110,13 +111,12 @@ canales.forEach((ch,i)=>{
 
 const barra = barraDiv.children;
 
-// Actualizar canal activo y scroll
+// Actualizar canal activo y centrarlo
 function actualizar(){
   for(let i=0;i<barra.length;i++){
     barra[i].classList.toggle("activo", i===indice);
   }
-  // Scroll para mantener visible el canal activo
-  barra[indice].scrollIntoView({behavior:"smooth", block:"nearest", inline:"nearest"});
+  barra[indice].scrollIntoView({behavior:"smooth", block:"nearest", inline:"center"});
 }
 
 // Función para cargar canal
@@ -148,7 +148,7 @@ function cargarCanal(ch){
   }
 }
 
-// Cargar primer canal al inicio
+// Cargar primer canal
 cargarCanal(canales[indice]);
 
 // Navegación con flechas y OK
