@@ -23,17 +23,19 @@
     background: rgba(0,0,0,0.7);
     display: flex;
     overflow-x: auto;
-    padding: 10px;
-    scroll-behavior: smooth; /* scroll suave */
+    padding: 4px 5px; /* barra más delgada */
+    scroll-behavior: smooth;
+    outline: none; /* elimina borde amarillo */
   }
-  .barra:focus {
-  outline: none;
-}
+  .barra:focus,
+  .barra:hover {
+    outline: none;
+  }
   .canal {
     margin: 0 10px;
-    padding: 5px 10px;
+    padding: 3px 8px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     opacity: 0.6;
     transition: 0.3s;
     white-space: nowrap;
@@ -44,10 +46,10 @@
     font-weight: bold;
     color: yellow;
     background: rgba(255,255,0,0.2);
-    box-shadow: 0 0 10px yellow;
+    box-shadow: 0 0 8px yellow;
   }
   .canal:focus {
-    outline: none; /* elimina borde amarillo de foco */
+    outline: none;
   }
   iframe, video {
     width: 100%;
@@ -59,7 +61,6 @@
 <body>
 
 <div id="player"></div>
-
 <div class="barra" id="barra"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -99,7 +100,7 @@ const playerDiv = document.getElementById("player");
 let indice = 0;
 
 // Generar barra de canales
-canales.forEach((ch, i) => {
+canales.forEach((ch,i)=>{
   const div = document.createElement("div");
   div.classList.add("canal");
   if(i===0) div.classList.add("activo");
@@ -110,12 +111,12 @@ canales.forEach((ch, i) => {
 const barra = barraDiv.children;
 
 // Actualizar canal activo y scroll
-function actualizar() {
+function actualizar(){
   for(let i=0;i<barra.length;i++){
     barra[i].classList.toggle("activo", i===indice);
   }
-  // Scroll automático para que el canal activo quede visible
-  barra[indice].scrollIntoView({behavior:"smooth", inline:"center"});
+  // Scroll para mantener visible el canal activo
+  barra[indice].scrollIntoView({behavior:"smooth", block:"nearest", inline:"nearest"});
 }
 
 // Función para cargar canal
@@ -151,7 +152,7 @@ function cargarCanal(ch){
 cargarCanal(canales[indice]);
 
 // Navegación con flechas y OK
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", e=>{
   switch(e.key){
     case "ArrowRight":
       indice = (indice+1)%canales.length;
@@ -170,4 +171,3 @@ document.addEventListener("keydown", e => {
 </script>
 </body>
 </html>
-
