@@ -5,7 +5,11 @@
 <title>Zapping TV - Ventana</title>
 <style>
 body { margin:0; background:black; font-family:Arial; overflow:hidden; }
-#player { width:100vw; height:100vh; outline:none; }
+#player { width:100vw; height:100vh; position:relative; outline:none; }
+.overlay {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  z-index:10; background:transparent;
+}
 .barra { position:fixed; bottom:0; width:100%; display:flex; justify-content:center;
         padding:4px 5px; background:rgba(0,0,0,0.7); overflow:hidden; }
 .canal { flex:0 0 auto; margin:0 5px; padding:3px 8px; color:white; font-size:16px;
@@ -21,15 +25,24 @@ iframe, video { width:100%; height:100%; object-fit:cover; }
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-// Lista de canales de ejemplo
+// Lista de canales
 const canales = [
-  { title:"CANAL 7", type:"m3u8", url:"https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-  { title:"A24", type:"youtube", url:"ArKbAx1K-2U" },
-  { title:"CANAL 13", type:"m3u8", url:"https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-  { title:"TELEFE1", type:"m3u8", url:"https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
-  { title:"TELEFE", type:"youtube", url:"xo8GkZXtNV0" },
-  { title:"LN+", type:"youtube", url:"5f__Ls4_VYQ" },
-      { title: "EURONEWS", type: "youtube", url: "O9mOtdZ-nSk" },
+    { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
+    { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
+    { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
+    { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
+    { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
+    { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
+    { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
+    { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
+    { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
+    { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
+    { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
+    { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
+    { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
+    { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
+    { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
+    { title: "EURONEWS", type: "youtube", url: "O9mOtdZ-nSk" },
     { title: "CHV", type: "youtube", url: "H3AFMMYG_tU" },
     { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
     { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
@@ -40,56 +53,59 @@ const canales = [
     { title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
     { title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
     { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
-  { title:"TN", type:"youtube", url:"cb12KmMMDJA" }
+    { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
 ];
 
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
+const ventana = 5;
+let inicio = 0;
 
-// Crear elementos de la barra
+// Crear barra
 canales.forEach(ch=>{
   const div = document.createElement("div");
-  div.className = "canal";
-  div.textContent = ch.title;
+  div.className="canal";
+  div.textContent=ch.title;
   barraDiv.appendChild(div);
 });
 const barra = barraDiv.children;
 
-const ventana = 6; // cantidad de canales visibles en la ventana
-let inicio = 0;     // primer canal de la ventana
-
 function actualizarVentana(){
-  // Ajustar el inicio para que el activo quede en el centro de la ventana
   inicio = indice - Math.floor(ventana/2);
   if(inicio < 0) inicio = 0;
   if(inicio > canales.length - ventana) inicio = canales.length - ventana;
 
   for(let i=0;i<barra.length;i++){
-    barra[i].style.display = (i>=inicio && i<inicio+ventana) ? "block" : "none";
+    barra[i].style.display=(i>=inicio && i<inicio+ventana)?"block":"none";
     barra[i].classList.toggle("activo", i===indice);
   }
 }
 
-// Cargar canal en el reproductor
+// Cargar canal
 function cargarCanal(ch){
   playerDiv.innerHTML="";
   if(ch.type==="youtube"){
-    const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
+    const iframe=document.createElement("iframe");
+    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
     iframe.allow="autoplay; encrypted-media";
-    iframe.frameBorder = 0;
-    iframe.allowFullscreen = true;
+    iframe.frameBorder=0;
+    iframe.allowFullscreen=true;
     playerDiv.appendChild(iframe);
+
+    // Agregar overlay para mantener foco en la barra
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
+    playerDiv.appendChild(overlay);
   } else if(ch.type==="m3u8"){
-    const video = document.createElement("video");
-    video.autoplay = true; video.controls = false; video.muted = false; video.playsInline = true;
+    const video=document.createElement("video");
+    video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
     playerDiv.appendChild(video);
     if(Hls.isSupported()){
-      const hls = new Hls();
+      const hls=new Hls();
       hls.loadSource(ch.url);
       hls.attachMedia(video);
-    } else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src = ch.url; }
+    } else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src=ch.url; }
     video.play();
   }
 }
@@ -101,9 +117,13 @@ actualizarVentana();
 // Navegación
 document.addEventListener("keydown", e=>{
   switch(e.key){
-    case "ArrowRight": indice = (indice+1)%canales.length; actualizarVentana(); break;
-    case "ArrowLeft": indice = (indice-1+canales.length)%canales.length; actualizarVentana(); break;
-    case "Enter": case "OK": cargarCanal(canales[indice]); break;
+    case "ArrowRight":
+      indice=(indice+1)%canales.length; actualizarVentana(); break;
+    case "ArrowLeft":
+      indice=(indice-1+canales.length)%canales.length; actualizarVentana(); break;
+    case "Enter":
+    case "OK":
+      cargarCanal(canales[indice]); break;
   }
 });
 </script>
