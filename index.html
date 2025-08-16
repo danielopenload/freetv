@@ -14,6 +14,7 @@
       width: 100vw;
       height: 100vh;
       object-fit: cover;
+      outline: none; /* evita el borde amarillo en TVs */
     }
     .barra {
       position: fixed;
@@ -39,7 +40,7 @@
   </style>
 </head>
 <body>
-  <video id="tv" autoplay controls></video>
+  <video id="tv" autoplay muted playsinline></video>
 
   <div class="barra" id="barra">
     <div class="canal activo">Canal 1</div>
@@ -47,18 +48,30 @@
     <div class="canal">Canal 3</div>
   </div>
 
+  <!-- HLS.js para compatibilidad con m3u8 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     const canales = [
-      "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8",
-      "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8",
-      "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8"
+      "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+      "https://moq.china-cdn.3qsdn.com/live/ccjdx.m3u8"
     ];
 
     const video = document.getElementById("tv");
     const barra = document.getElementById("barra").children;
-
     let indice = 0;
-    video.src = canales[indice];
+
+    // función para cargar canal con hls.js
+    function cargarCanal(url) {
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url; // Safari soporta nativo
+      }
+      video.play();
+    }
 
     function actualizar() {
       for (let i = 0; i < barra.length; i++) {
@@ -67,7 +80,10 @@
       barra[indice].classList.add("activo");
     }
 
-    // Detección de teclas (funciona en Smart TV)
+    // cargar el primer canal
+    cargarCanal(canales[indice]);
+
+    // navegación con control remoto / teclado
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowRight": // derecha
@@ -79,9 +95,8 @@
           actualizar();
           break;
         case "Enter": // OK
-        case "OK":    // algunas TVs usan "OK"
-          video.src = canales[indice];
-          video.play();
+        case "OK":    // algunas TVs lo mandan así
+          cargarCanal(canales[indice]);
           break;
       }
     });
