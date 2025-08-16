@@ -14,7 +14,7 @@
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-      outline: none; /* evita el borde amarillo en TVs */
+      outline: none; /* evita borde amarillo en TVs */
     }
     .barra {
       position: fixed;
@@ -80,7 +80,7 @@
       barra[indice].classList.add("activo");
     }
 
-    // cargar el primer canal
+    // cargar el primer canal (mudo para autoplay)
     cargarCanal(canales[indice]);
 
     // navegación con control remoto / teclado
@@ -96,6 +96,7 @@
           break;
         case "Enter": // OK
         case "OK":    // algunas TVs lo mandan así
+          video.muted = false;  // activar sonido al seleccionar canal
           cargarCanal(canales[indice]);
           break;
       }
@@ -103,4 +104,3 @@
   </script>
 </body>
 </html>
-
