@@ -2,58 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Zapping TV Centrado</title>
+<title>Zapping TV - Full Scroll</title>
 <style>
-  body {
-    margin: 0;
-    background: black;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-  }
-  #player {
-    width: 100vw;
-    height: 100vh;
-    background: black;
-    outline: none;
-  }
-  .barra {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    overflow-x: auto;
-    padding: 4px 5px;
-    scroll-behavior: smooth;
-    outline: none;
-  }
-  .barra:focus,
-  .barra:hover {
-    outline: none;
-  }
-  .canal {
-    margin: 0 10px;
-    padding: 3px 8px;
-    color: white;
-    font-size: 16px;
-    opacity: 0.6;
-    transition: 0.3s;
-    white-space: nowrap;
-    border-radius: 5px;
-    flex: 0 0 auto;
-  }
-  .canal.activo {
-    opacity: 1;
-    font-weight: bold;
-    color: yellow;
-    background: rgba(255,255,0,0.2);
-    box-shadow: 0 0 8px yellow;
-  }
-  iframe, video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+body { margin:0; background:black; font-family:Arial; overflow:hidden; }
+#player { width:100vw; height:100vh; outline:none; }
+.barra { position:fixed; bottom:0; width:100%; display:flex; overflow:hidden;
+        padding:4px 5px; background:rgba(0,0,0,0.7); }
+.canal { flex:0 0 auto; margin:0 5px; padding:3px 8px; color:white; font-size:16px;
+        opacity:0.6; border-radius:5px; transition:0.2s; white-space:nowrap; text-align:center;}
+.canal.activo { opacity:1; font-weight:bold; color:yellow; background:rgba(255,255,0,0.2);}
+iframe, video { width:100%; height:100%; object-fit:cover; }
 </style>
 </head>
 <body>
@@ -63,106 +21,97 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
+// Lista de canales de ejemplo
 const canales = [
-  { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-  { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
-  { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
-  { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
-  { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
-  { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
-  { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
-  { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
-  { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
-  { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
-  { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
-  { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
-  { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
-  { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
-  { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
-  { title: "EURONEWS", type: "youtube", url: "O9mOtdZ-nSk" },
-  { title: "CHV", type: "youtube", url: "H3AFMMYG_tU" },
-  { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
-  { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
-  { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
-  { title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
-  { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
-  { title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
-  { title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
-  { title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
-  { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
-  { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
+  
+      { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
+    { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
+    { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
+    { title: "TELEFE1", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
+    { title: "TELEFE", type: "youtube", url: "xo8GkZXtNV0" },
+    { title: "LN+", type: "youtube", url: "5f__Ls4_VYQ" },
+    { title: "TN", type: "youtube", url: "cb12KmMMDJA" },
+    { title: "C5N", type: "youtube", url: "jTDk5CswBVk" },
+    { title: "CRONICA", type: "youtube", url: "avly0uwZzOE" },
+    { title: "CANAL26", type: "youtube", url: "BTaSHvWJW5A" },
+    { title: "TELEMAX", type: "m3u8", url: "https://stream-gtlc.telecentro.net.ar/hls/telemaxhls/0/playlist.m3u8" },
+    { title: "TELESUR", type: "youtube", url: "m3soaHQ7aLY" },
+    { title: "DW", type: "m3u8", url: "https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/master.m3u8" },
+    { title: "RT ESPAÑOL", type: "m3u8", url: "https://rt-esp.rttv.com/dvr/rtesp/playlist_4500Kb.m3u8" },
+    { title: "FRANCE 24", type: "youtube", url: "Y-IlMeCCtIg" },
+    { title: "EURONEWS", type: "youtube", url: "O9mOtdZ-nSk" },
+    { title: "CHV", type: "youtube", url: "H3AFMMYG_tU" },
+    { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
+    { title: "TELEMUNDO", type: "youtube", url: "0zMi6kHo19o" },
+    { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
+    { title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
+    { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
+    { title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
+    { title: "LATINA", type: "youtube", url: "DhWVrsc0RuQ" },
+    { title: "RTVE", type: "youtube", url: "7_srED6k0bE" },
+    { title: "TV PUBLICA", type: "youtube", url: "pGlhgOZMZPU" },
+    { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
 ];
 
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
 
-// Crear barra de canales
-canales.forEach((ch,i)=>{
+// Crear elementos de la barra
+canales.forEach(ch=>{
   const div = document.createElement("div");
-  div.classList.add("canal");
-  if(i===0) div.classList.add("activo");
+  div.className = "canal";
   div.textContent = ch.title;
   barraDiv.appendChild(div);
 });
-
 const barra = barraDiv.children;
 
-// Actualizar canal activo y centrarlo
-function actualizar(){
-  for(let i=0;i<barra.length;i++){
-    barra[i].classList.toggle("activo", i===indice);
-  }
-  barra[indice].scrollIntoView({behavior:"smooth", inline:"center"});
-}
-
-// Cargar canal seleccionado
+// Cargar canal en el reproductor
 function cargarCanal(ch){
-  playerDiv.innerHTML = "";
+  playerDiv.innerHTML="";
   if(ch.type==="youtube"){
     const iframe = document.createElement("iframe");
     iframe.src = `https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
-    iframe.allow = "autoplay; encrypted-media";
+    iframe.allow="autoplay; encrypted-media";
     iframe.frameBorder = 0;
     iframe.allowFullscreen = true;
     playerDiv.appendChild(iframe);
   } else if(ch.type==="m3u8"){
     const video = document.createElement("video");
-    video.autoplay = true;
-    video.controls = false;
-    video.muted = false;
-    video.playsInline = true;
+    video.autoplay = true; video.controls = false; video.muted = false; video.playsInline = true;
     playerDiv.appendChild(video);
-
     if(Hls.isSupported()){
       const hls = new Hls();
       hls.loadSource(ch.url);
       hls.attachMedia(video);
-    } else if(video.canPlayType("application/vnd.apple.mpegurl")){
-      video.src = ch.url;
-    }
+    } else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src = ch.url; }
     video.play();
   }
 }
 
-// Cargar primer canal
+// Actualizar resaltado y centrar canal activo
+function actualizarBarra(){
+  for(let i=0;i<barra.length;i++){
+    barra[i].classList.toggle("activo", i===indice);
+  }
+  // Calcular scroll para que canal activo quede centrado
+  const barraWidth = barraDiv.offsetWidth;
+  const canalActivo = barra[indice];
+  const canalLeft = canalActivo.offsetLeft;
+  const canalWidth = canalActivo.offsetWidth;
+  barraDiv.scrollLeft = canalLeft - barraWidth/2 + canalWidth/2;
+}
+
+// Inicializar
 cargarCanal(canales[indice]);
+actualizarBarra();
 
 // Navegación
 document.addEventListener("keydown", e=>{
   switch(e.key){
-    case "ArrowRight":
-      indice = (indice+1)%canales.length;
-      actualizar();
-      break;
-    case "ArrowLeft":
-      indice = (indice-1+canales.length)%canales.length;
-      actualizar();
-      break;
-    case "Enter":
-    case "OK":
-      cargarCanal(canales[indice]);
-      break;
+    case "ArrowRight": indice = (indice+1)%canales.length; actualizarBarra(); break;
+    case "ArrowLeft": indice = (indice-1+canales.length)%canales.length; actualizarBarra(); break;
+    case "Enter": case "OK": cargarCanal(canales[indice]); break;
   }
 });
 </script>
