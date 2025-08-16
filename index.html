@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Zapping TV</title>
+<title>Zapping TV Mejorado</title>
 <style>
   body {
     margin: 0;
@@ -22,22 +22,29 @@
     width: 100%;
     background: rgba(0,0,0,0.7);
     display: flex;
-    justify-content: center;
-    padding: 10px;
     overflow-x: auto;
+    padding: 10px;
+    scroll-behavior: smooth; /* scroll suave */
   }
   .canal {
     margin: 0 10px;
+    padding: 5px 10px;
     color: white;
     font-size: 18px;
     opacity: 0.6;
     transition: 0.3s;
     white-space: nowrap;
+    border-radius: 5px;
   }
-  .activo {
+  .canal.activo {
     opacity: 1;
     font-weight: bold;
     color: yellow;
+    background: rgba(255,255,0,0.2);
+    box-shadow: 0 0 10px yellow;
+  }
+  .canal:focus {
+    outline: none; /* elimina borde amarillo de foco */
   }
   iframe, video {
     width: 100%;
@@ -50,9 +57,7 @@
 
 <div id="player"></div>
 
-<div class="barra" id="barra">
-  <!-- Los nombres se rellenarán dinámicamente -->
-</div>
+<div class="barra" id="barra"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
@@ -89,9 +94,8 @@ const canales = [
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
-let playerHls = null;
 
-// Generar barra
+// Generar barra de canales
 canales.forEach((ch, i) => {
   const div = document.createElement("div");
   div.classList.add("canal");
@@ -102,16 +106,18 @@ canales.forEach((ch, i) => {
 
 const barra = barraDiv.children;
 
-// Función para actualizar selección visual
+// Actualizar canal activo y scroll
 function actualizar() {
   for(let i=0;i<barra.length;i++){
     barra[i].classList.toggle("activo", i===indice);
   }
+  // Scroll automático para que el canal activo quede visible
+  barra[indice].scrollIntoView({behavior:"smooth", inline:"center"});
 }
 
 // Función para cargar canal
 function cargarCanal(ch){
-  playerDiv.innerHTML = ""; // limpiar
+  playerDiv.innerHTML = ""; 
   if(ch.type==="youtube"){
     const iframe = document.createElement("iframe");
     iframe.src = `https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
@@ -123,14 +129,14 @@ function cargarCanal(ch){
     const video = document.createElement("video");
     video.autoplay = true;
     video.controls = false;
-    video.muted = false; // activar sonido al cargar canal
+    video.muted = false;
     video.playsInline = true;
     playerDiv.appendChild(video);
 
     if(Hls.isSupported()){
-      playerHls = new Hls();
-      playerHls.loadSource(ch.url);
-      playerHls.attachMedia(video);
+      const hls = new Hls();
+      hls.loadSource(ch.url);
+      hls.attachMedia(video);
     } else if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src = ch.url;
     }
