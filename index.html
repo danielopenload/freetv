@@ -133,7 +133,7 @@ function cargarCanal(ch){
 
   if(ch.type==="youtube"){
     const iframe=document.createElement("iframe");
-    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=1`;
+    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1`;
     iframe.allow="autoplay; encrypted-media";
     iframe.frameBorder=0;
     iframe.allowFullscreen=true;
@@ -192,4 +192,5 @@ for(let i=0;i<barra.length;i++){
 
 </body>
 </html>
+
 
