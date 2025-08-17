@@ -94,6 +94,7 @@ const playerDiv = document.getElementById("player");
 let indice = 0;
 const ventana = 5;
 let inicio = 0;
+let hlsInstance = null;
 
 // Crear barra
 canales.forEach(ch=>{
@@ -115,18 +116,30 @@ function actualizarVentana(){
   }
 }
 
+// Función para limpiar player y liberar memoria
+function limpiarPlayer(){
+  // Detener HLS si existe
+  if(hlsInstance){
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+  // Eliminar todo del player
+  playerDiv.innerHTML = "";
+}
+
 // Cargar canal
 function cargarCanal(ch){
-  playerDiv.innerHTML="";
+  limpiarPlayer();
+
   if(ch.type==="youtube"){
     const iframe=document.createElement("iframe");
-    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
+    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=1`;
     iframe.allow="autoplay; encrypted-media";
     iframe.frameBorder=0;
     iframe.allowFullscreen=true;
     playerDiv.appendChild(iframe);
 
-    // Agregar overlay para mantener foco en la barra
+    // Overlay para mantener foco en la barra
     const overlay=document.createElement("div");
     overlay.className="overlay";
     playerDiv.appendChild(overlay);
@@ -134,11 +147,15 @@ function cargarCanal(ch){
     const video=document.createElement("video");
     video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
     playerDiv.appendChild(video);
+
     if(Hls.isSupported()){
-      const hls=new Hls();
-      hls.loadSource(ch.url);
-      hls.attachMedia(video);
-    } else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src=ch.url; }
+      hlsInstance = new Hls();
+      hlsInstance.loadSource(ch.url);
+      hlsInstance.attachMedia(video);
+    } else if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=ch.url;
+    }
+
     video.play();
   }
 }
@@ -151,26 +168,28 @@ actualizarVentana();
 document.addEventListener("keydown", e=>{
   switch(e.key){
     case "ArrowRight":
-      indice=(indice+1)%canales.length; actualizarVentana(); break;
+      indice=(indice+1)%canales.length; 
+      actualizarVentana(); 
+      cargarCanal(canales[indice]); // carga automática
+      break;
     case "ArrowLeft":
-      indice=(indice-1+canales.length)%canales.length; actualizarVentana(); break;
-    case "Enter":
-    case "OK":
-      cargarCanal(canales[indice]); break;
+      indice=(indice-1+canales.length)%canales.length; 
+      actualizarVentana(); 
+      cargarCanal(canales[indice]); // carga automática
+      break;
   }
 });
+
+// Barra clickeable
+for(let i=0;i<barra.length;i++){
+  barra[i].addEventListener("click", ()=>{
+    indice = i;
+    actualizarVentana();
+    cargarCanal(canales[indice]);
+  });
+}
 </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
