@@ -100,11 +100,12 @@ let hlsInstance = null;
 canales.forEach(ch=>{
   const div = document.createElement("div");
   div.className="canal";
-  div.textContent=ch.title;
+  div.textContent = ch.title;
   barraDiv.appendChild(div);
 });
 const barra = barraDiv.children;
 
+// Actualizar barra y centrar canal activo
 function actualizarVentana(){
   inicio = indice - Math.floor(ventana/2);
   if(inicio < 0) inicio = 0;
@@ -114,16 +115,17 @@ function actualizarVentana(){
     barra[i].style.display=(i>=inicio && i<inicio+ventana)?"block":"none";
     barra[i].classList.toggle("activo", i===indice);
   }
+
+  // Centrar canal activo suavemente
+  barra[indice].scrollIntoView({behavior: "smooth", block:"nearest", inline:"center"});
 }
 
-// Función para limpiar player y liberar memoria
+// Limpiar player y liberar memoria
 function limpiarPlayer(){
-  // Detener HLS si existe
   if(hlsInstance){
     hlsInstance.destroy();
     hlsInstance = null;
   }
-  // Eliminar todo del player
   playerDiv.innerHTML = "";
 }
 
@@ -139,7 +141,6 @@ function cargarCanal(ch){
     iframe.allowFullscreen=true;
     playerDiv.appendChild(iframe);
 
-    // Overlay para mantener foco en la barra
     const overlay=document.createElement("div");
     overlay.className="overlay";
     playerDiv.appendChild(overlay);
@@ -160,22 +161,24 @@ function cargarCanal(ch){
   }
 }
 
-// Inicializar
+// Inicializar primer canal
 cargarCanal(canales[indice]);
 actualizarVentana();
 
-// Navegación
+// Navegación con flechas (solo mover foco)
 document.addEventListener("keydown", e=>{
   switch(e.key){
     case "ArrowRight":
-      indice=(indice+1)%canales.length; 
-      actualizarVentana(); 
-      cargarCanal(canales[indice]); // carga automática
+      indice = (indice+1)%canales.length;
+      actualizarVentana();
       break;
     case "ArrowLeft":
-      indice=(indice-1+canales.length)%canales.length; 
-      actualizarVentana(); 
-      cargarCanal(canales[indice]); // carga automática
+      indice = (indice-1+canales.length)%canales.length;
+      actualizarVentana();
+      break;
+    case "Enter":
+    case "OK":
+      cargarCanal(canales[indice]);
       break;
   }
 });
@@ -190,7 +193,9 @@ for(let i=0;i<barra.length;i++){
 }
 </script>
 
+
 </body>
 </html>
+
 
 
