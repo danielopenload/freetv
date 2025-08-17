@@ -90,6 +90,7 @@ const canales = [
 ];
 
 
+
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
@@ -143,13 +144,13 @@ function limpiarPlayer(){
     playerDiv.innerHTML = "";
 }
 
-// Cargar canal seleccionado
+// Cargar canal seleccionado (libera memoria del canal anterior)
 function cargarCanal(ch){
     limpiarPlayer();
 
     if(ch.type==="youtube"){
         const iframe = document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1`;
+        iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
         iframe.allow="autoplay; encrypted-media";
         iframe.frameBorder=0;
         iframe.allowFullscreen=true;
@@ -182,18 +183,16 @@ function cargarCanal(ch){
 cargarCanal(canales[indice]);
 actualizarVentana();
 
-// Navegación con teclado
+// Navegación con teclado (flechas solo mueven selección, Enter carga canal)
 document.addEventListener("keydown", e=>{
   switch(e.key){
     case "ArrowRight":
       indice=(indice+1)%canales.length; 
       actualizarVentana(); 
-      cargarCanal(canales[indice]);
       break;
     case "ArrowLeft":
       indice=(indice-1+canales.length)%canales.length; 
       actualizarVentana(); 
-      cargarCanal(canales[indice]);
       break;
     case "Enter":
     case "OK":
@@ -201,8 +200,9 @@ document.addEventListener("keydown", e=>{
       break;
   }
 });
-</script>
+
 
 </script>
 </body>
 </html>
+
