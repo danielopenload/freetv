@@ -50,8 +50,8 @@ iframe, video {
   object-fit:cover;
 }
   .canal.zoom {
-    transform: scale(1.2);
-    transition: transform 0.1s;
+    transform: scale(1.1);
+    transition: transform 0.2s;
     background: red;   /* fondo rojo */
     color: white;
 }
@@ -86,7 +86,7 @@ const canales = [
     { title: "CHV", type: "youtube", url: "H3AFMMYG_tU" },
     { title: "24 CH", type: "youtube", url: "h3Jn8f-YKRk" },
     { title: "T13", type: "youtube", url: "R_V7FhsCPwM" },
-    { title: "MEGA", type: "youtube", url: "yG-VxvOVkTQ" },
+    { title: "MEGA", type: "youtube", url: "HfCH3zezHgE" },
     { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
     { title: "TELEMUNDO", type: "youtube", url: "sfQW4Fp0h88" },
     { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
@@ -168,7 +168,7 @@ function cargarCanal(ch){
       barra[indice].classList.add("zoom");
     setTimeout(() => {
         barra[indice].classList.remove("zoom");
-    }, 100);
+    }, 200);
 
     if(ch.type==="youtube"){
         const iframe = document.createElement("iframe");
@@ -227,6 +227,7 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
 
 
 
