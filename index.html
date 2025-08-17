@@ -51,7 +51,7 @@ iframe, video {
 }
   .canal.zoom {
     transform: scale(1.2);
-    transition: transform 0.3s;
+    transition: transform 0.1s;
 }
 </style>
 </head>
@@ -166,7 +166,7 @@ function cargarCanal(ch){
       barra[indice].classList.add("zoom");
     setTimeout(() => {
         barra[indice].classList.remove("zoom");
-    }, 300);
+    }, 100);
 
     if(ch.type==="youtube"){
         const iframe = document.createElement("iframe");
@@ -225,6 +225,7 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
 
 
 
