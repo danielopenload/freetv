@@ -4,85 +4,40 @@
 <meta charset="UTF-8">
 <title>Zapping TV - Ventana</title>
 <style>
-body { 
-    margin:0; 
-    background:black; 
-    font-family:Arial; 
-    overflow:hidden; 
-}
-
-#player { 
-    width:100vw; 
-    height:100vh; 
-    position:relative; 
-    outline:none; 
-}
-
+body { margin:0; background:black; font-family:Arial; overflow:hidden; }
+#player { width:100vw; height:100vh; position:relative; outline:none; }
 .overlay {
-    position:absolute; 
-    top:0; 
-    left:0; 
-    width:100%; 
-    height:100%;
-    z-index:10; 
-    background:transparent;
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  z-index:10; background:transparent;
 }
-
 .barra {
-    position: fixed;
-    bottom: 0;
-    width: 40%;               /* ancho de la barra */
-    left: 50%;                /* centrar horizontal */
-    border-radius:10px;
-    transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
-    padding: 2px 5px;
-    background: rgba(0,0,0,0.3);
-    overflow: hidden; 
+  position: fixed;
+  bottom: 0;
+  width: 40%;               /* ancho de la barra */
+  left: 50%;                /* mover al centro horizontal */
+   border-radius:10px;
+  transform: translateX(-50%); /* ajustar para que quede perfectamente centrada */
+  display: flex;
+  justify-content: center;
+  padding: 2px 5px;
+  background: rgba(0,0,0,0.3);
+  overflow: hidden; 
 }
-
 .canal { 
     flex:0 0 auto;
     margin:0 5px; 
     padding:1px 5px; 
     color: yellow;
     font-size:11px;
-    font-weight:bold;
-    opacity:0.6; 
+  font-weight:bold;
+   opacity:0.6; 
     border-radius:3px; 
     transition:0.2s; 
     white-space:nowrap;
-    text-align:center;
-    cursor:pointer;
-    outline:none; /* quitar borde focus TV */
-}
-
-/* Focus normal para canales no activos */
-.canal:not(.activo):focus {
-    background: rgba(255,255,255,0.2);
-    opacity:1;
-}
-
-/* Canal activo */
-.canal.activo { 
-    opacity:1; 
-    font-weight:bold; 
-    color:red; 
-    background: rgba(255,255,255,0.3); /* resaltado */
-}
-
-/* Focus en canal activo no cambia nada */
-.canal.activo:focus {
-    background: rgba(255,255,255,0.3);
-    opacity:1;
-}
-
-iframe, video { 
-    width:100%; 
-    height:100%; 
-    object-fit:cover; 
-}
+    text-align:center;}
+  
+.canal.activo { opacity:1; font-weight:bold; color:red; background:rgba(255,255,255);}
+iframe, video { width:100%; height:100%; object-fit:cover; }
 </style>
 </head>
 <body>
@@ -134,23 +89,28 @@ const canales = [
     { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
 ];
 
+
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
 let indice = 0;
 const ventana = 5;
 let inicio = 0;
-let hlsInstance = null;
 
-// Crear barra
+// Variables globales para liberar recursos
+let currentIframe = null;
+let currentVideo = null;
+let currentHls = null;
+
+// Crear barra de canales
 canales.forEach(ch=>{
   const div = document.createElement("div");
   div.className="canal";
-  div.textContent = ch.title;
+  div.textContent=ch.title;
   barraDiv.appendChild(div);
 });
 const barra = barraDiv.children;
 
-// Actualizar barra y centrar canal activo
+// Actualizar ventana de canales visibles
 function actualizarVentana(){
   inicio = indice - Math.floor(ventana/2);
   if(inicio < 0) inicio = 0;
@@ -160,88 +120,89 @@ function actualizarVentana(){
     barra[i].style.display=(i>=inicio && i<inicio+ventana)?"block":"none";
     barra[i].classList.toggle("activo", i===indice);
   }
-
-  // Centrar canal activo suavemente
-  barra[indice].scrollIntoView({behavior: "smooth", block:"nearest", inline:"center"});
 }
 
-// Limpiar player y liberar memoria
+// Limpiar recursos del canal anterior
 function limpiarPlayer(){
-  if(hlsInstance){
-    hlsInstance.destroy();
-    hlsInstance = null;
-  }
-  playerDiv.innerHTML = "";
-}
-
-// Cargar canal
-function cargarCanal(ch){
-  limpiarPlayer();
-
-  if(ch.type==="youtube"){
-    const iframe=document.createElement("iframe");
-    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1`;
-    iframe.allow="autoplay; encrypted-media";
-    iframe.frameBorder=0;
-    iframe.allowFullscreen=true;
-    playerDiv.appendChild(iframe);
-
-    const overlay=document.createElement("div");
-    overlay.className="overlay";
-    playerDiv.appendChild(overlay);
-  } else if(ch.type==="m3u8"){
-    const video=document.createElement("video");
-    video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
-    playerDiv.appendChild(video);
-
-    if(Hls.isSupported()){
-      hlsInstance = new Hls();
-      hlsInstance.loadSource(ch.url);
-      hlsInstance.attachMedia(video);
-    } else if(video.canPlayType("application/vnd.apple.mpegurl")){
-      video.src=ch.url;
+    if(currentHls){
+        currentHls.destroy();
+        currentHls = null;
     }
-
-    video.play();
-  }
+    if(currentVideo){
+        currentVideo.pause();
+        currentVideo.src = "";
+        currentVideo.load();
+        currentVideo.remove();
+        currentVideo = null;
+    }
+    if(currentIframe){
+        currentIframe.src = "";
+        currentIframe.remove();
+        currentIframe = null;
+    }
+    playerDiv.innerHTML = "";
 }
 
-// Inicializar primer canal
+// Cargar canal seleccionado
+function cargarCanal(ch){
+    limpiarPlayer();
+
+    if(ch.type==="youtube"){
+        const iframe = document.createElement("iframe");
+        iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1`;
+        iframe.allow="autoplay; encrypted-media";
+        iframe.frameBorder=0;
+        iframe.allowFullscreen=true;
+        playerDiv.appendChild(iframe);
+        currentIframe = iframe;
+
+        const overlay = document.createElement("div");
+        overlay.className="overlay";
+        playerDiv.appendChild(overlay);
+
+    } else if(ch.type==="m3u8"){
+        const video = document.createElement("video");
+        video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
+        playerDiv.appendChild(video);
+        currentVideo = video;
+
+        if(Hls.isSupported()){
+            const hls = new Hls();
+            hls.loadSource(ch.url);
+            hls.attachMedia(video);
+            currentHls = hls;
+        } else if(video.canPlayType("application/vnd.apple.mpegurl")){ 
+            video.src=ch.url; 
+        }
+        video.play();
+    }
+}
+
+// Inicializar
 cargarCanal(canales[indice]);
 actualizarVentana();
 
-// Navegación con flechas (solo mover foco)
+// Navegación con teclado
 document.addEventListener("keydown", e=>{
   switch(e.key){
     case "ArrowRight":
-      indice = (indice+1)%canales.length;
-      actualizarVentana();
+      indice=(indice+1)%canales.length; 
+      actualizarVentana(); 
+      cargarCanal(canales[indice]);
       break;
     case "ArrowLeft":
-      indice = (indice-1+canales.length)%canales.length;
-      actualizarVentana();
+      indice=(indice-1+canales.length)%canales.length; 
+      actualizarVentana(); 
+      cargarCanal(canales[indice]);
       break;
     case "Enter":
     case "OK":
-      cargarCanal(canales[indice]);
+      cargarCanal(canales[indice]); 
       break;
   }
 });
-
-// Barra clickeable
-for(let i=0;i<barra.length;i++){
-  barra[i].addEventListener("click", ()=>{
-    indice = i;
-    actualizarVentana();
-    cargarCanal(canales[indice]);
-  });
-}
 </script>
 
-
+</script>
 </body>
 </html>
-
-
-
-
