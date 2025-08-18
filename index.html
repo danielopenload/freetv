@@ -41,7 +41,7 @@ body { margin:0; background:black; font-family:Arial; overflow:hidden; }
   font-weight:bold; 
   color:red; 
   background: white;
-  transform: scale(1.2);
+  
 }
 iframe, video { 
   width:100%; 
@@ -49,6 +49,7 @@ iframe, video {
   object-fit:cover;
 }
 .canal.zoom {
+ transform: scale(1.2);
   transition: transform 0.2s;
   background: red;
   color: white;
@@ -243,5 +244,6 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
 
 
