@@ -13,47 +13,75 @@ body { margin:0; background:black; font-family:Arial; overflow:hidden; }
 .barra {
   position: fixed;
   bottom: 0;
-  width: 40%;               /* ancho de la barra */
-  left: 50%;                /* mover al centro horizontal */
-   border-radius:10px;
-  transform: translateX(-50%); /* ajustar para que quede perfectamente centrada */
+  width: 50%;
+  left: 50%;
+  border-radius:10px;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  padding: 2px 5px;
+  padding: 2px 20px;
   background: rgba(0,0,0,0.3);
   overflow: hidden; 
 }
 .canal { 
-    flex:0 0 auto;
-    margin:0 5px; 
-    padding:1px 5px; 
-    color: yellow;
-    font-size:11px;
+  flex:0 0 auto;
+  margin:0 5px; 
+  padding:1px 5px; 
+  color: yellow;
+  font-size:11px;
   font-weight:bold;
-   opacity:0.6; 
-    border-radius:3px; 
-    transition:0.2s; 
-    white-space:nowrap;
-    text-align:center;}
-  
+  opacity:0.6; 
+  border-radius:3px; 
+  transition:0.2s; 
+  white-space:nowrap;
+  text-align:center;
+}
 .canal.activo { 
   opacity:1; 
   font-weight:bold; 
   color:red; 
   background:rgba(255,255,255);
-
 }
-  
 iframe, video { 
   width:100%; 
   height:100%; 
   object-fit:cover;
 }
-  .canal.zoom {
-    transform: scale(1.1);
-    transition: transform 0.2s;
-    background: red;   /* fondo rojo */
-    color: white;
+.canal.zoom {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+  background: red;
+  color: white;
+}
+
+/* === Hora arriba derecha === */
+#hora {
+  position: fixed;
+  top: 5px;
+  right: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: lime;
+  background: rgba(0,0,0,0.4);
+  padding: 3px 6px;
+  border-radius: 6px;
+  z-index: 20;
+  font-family: monospace;
+}
+
+/* === Fecha arriba izquierda === */
+#fecha {
+  position: fixed;
+  top: 5px;
+  left: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: Cyan;
+  background: rgba(0,0,0,0.4);
+  padding: 3px 5px;
+  border-radius: 6px;
+  z-index: 20;
+  font-family: monospace;
 }
 </style>
 </head>
@@ -61,10 +89,37 @@ iframe, video {
 
 <div id="player"></div>
 <div class="barra" id="barra"></div>
+<div id="hora"></div>   <!-- Hora arriba derecha -->
+<div id="fecha"></div>  <!-- Fecha arriba izquierda -->
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-// Lista de canales
+// === Fecha y Hora ===
+function actualizarFechaHora(){
+  const ahora = new Date();
+
+  // Hora
+  const horas = String(ahora.getHours()).padStart(2,"0");
+  const minutos = String(ahora.getMinutes()).padStart(2,"0");
+  const segundos = String(ahora.getSeconds()).padStart(2,"0");
+  document.getElementById("hora").textContent = `${horas}:${minutos}:${segundos}`;
+
+// Fecha
+const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+let fechaStr = ahora.toLocaleDateString('es-ES', opcionesFecha);
+
+// Quitar la coma que aparece después del día de la semana
+fechaStr = fechaStr.replace(",", "");
+
+// Poner la primera letra en mayúscula
+fechaStr = fechaStr.toUpperCase();
+document.getElementById("fecha").textContent = fechaStr;
+
+}
+setInterval(actualizarFechaHora,1000);
+actualizarFechaHora();
+
+// === Lista de canales ===
 const canales = [
     { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
     { title: "TV PUBLICA", type: "youtube", url: "LwYRDMkKeXY" },
@@ -114,13 +169,10 @@ const playerDiv = document.getElementById("player");
 let indice = 0;
 const ventana = 5;
 let inicio = 0;
-
-// Variables globales para liberar recursos
 let currentIframe = null;
 let currentVideo = null;
 let currentHls = null;
 
-// Crear barra de canales
 canales.forEach(ch=>{
   const div = document.createElement("div");
   div.className="canal";
@@ -129,103 +181,65 @@ canales.forEach(ch=>{
 });
 const barra = barraDiv.children;
 
-// Actualizar ventana de canales visibles
 function actualizarVentana(){
   inicio = indice - Math.floor(ventana/2);
   if(inicio < 0) inicio = 0;
   if(inicio > canales.length - ventana) inicio = canales.length - ventana;
-
   for(let i=0;i<barra.length;i++){
     barra[i].style.display=(i>=inicio && i<inicio+ventana)?"block":"none";
     barra[i].classList.toggle("activo", i===indice);
   }
 }
 
-// Limpiar recursos del canal anterior
 function limpiarPlayer(){
-    if(currentHls){
-        currentHls.destroy();
-        currentHls = null;
-    }
-    if(currentVideo){
-        currentVideo.pause();
-        currentVideo.src = "";
-        currentVideo.load();
-        currentVideo.remove();
-        currentVideo = null;
-    }
-    if(currentIframe){
-        currentIframe.src = "";
-        currentIframe.remove();
-        currentIframe = null;
-    }
-    playerDiv.innerHTML = "";
+  if(currentHls){ currentHls.destroy(); currentHls=null; }
+  if(currentVideo){ currentVideo.pause(); currentVideo.src=""; currentVideo.load(); currentVideo.remove(); currentVideo=null; }
+  if(currentIframe){ currentIframe.src=""; currentIframe.remove(); currentIframe=null; }
+  playerDiv.innerHTML="";
 }
 
-// Cargar canal seleccionado (libera memoria del canal anterior)
 function cargarCanal(ch){
-    limpiarPlayer();
-
-      barra[indice].classList.add("zoom");
-    setTimeout(() => {
-        barra[indice].classList.remove("zoom");
-    }, 200);
-
-    if(ch.type==="youtube"){
-        const iframe = document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
-        iframe.allow="autoplay; encrypted-media";
-        iframe.frameBorder=0;
-        iframe.allowFullscreen=true;
-        playerDiv.appendChild(iframe);
-        currentIframe = iframe;
-
-        const overlay = document.createElement("div");
-        overlay.className="overlay";
-        playerDiv.appendChild(overlay);
-
-    } else if(ch.type==="m3u8"){
-        const video = document.createElement("video");
-        video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
-        playerDiv.appendChild(video);
-        currentVideo = video;
-
-        if(Hls.isSupported()){
-            const hls = new Hls();
-            hls.loadSource(ch.url);
-            hls.attachMedia(video);
-            currentHls = hls;
-        } else if(video.canPlayType("application/vnd.apple.mpegurl")){ 
-            video.src=ch.url; 
-        }
-        video.play();
+  limpiarPlayer();
+  barra[indice].classList.add("zoom");
+  setTimeout(()=>{ barra[indice].classList.remove("zoom"); },200);
+  if(ch.type==="youtube"){
+    const iframe=document.createElement("iframe");
+    iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
+    iframe.allow="autoplay; encrypted-media";
+    iframe.frameBorder=0;
+    iframe.allowFullscreen=true;
+    playerDiv.appendChild(iframe);
+    currentIframe=iframe;
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
+    playerDiv.appendChild(overlay);
+  } else if(ch.type==="m3u8"){
+    const video=document.createElement("video");
+    video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
+    playerDiv.appendChild(video);
+    currentVideo=video;
+    if(Hls.isSupported()){
+      const hls=new Hls();
+      hls.loadSource(ch.url);
+      hls.attachMedia(video);
+      currentHls=hls;
+    } else if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=ch.url;
     }
+    video.play();
+  }
 }
 
-// Inicializar
 cargarCanal(canales[indice]);
 actualizarVentana();
 
-// Navegación con teclado (flechas solo mueven selección, Enter carga canal)
 document.addEventListener("keydown", e=>{
   switch(e.key){
-    case "ArrowRight":
-      indice=(indice+1)%canales.length; 
-      actualizarVentana(); 
-      break;
-    case "ArrowLeft":
-      indice=(indice-1+canales.length)%canales.length; 
-      actualizarVentana(); 
-      break;
-    case "Enter":
-    case "OK":
-      cargarCanal(canales[indice]); 
-      break;
+    case "ArrowRight": indice=(indice+1)%canales.length; actualizarVentana(); break;
+    case "ArrowLeft": indice=(indice-1+canales.length)%canales.length; actualizarVentana(); break;
+    case "Enter": case "OK": cargarCanal(canales[indice]); break;
   }
 });
-
-
 </script>
 </body>
 </html>
-
