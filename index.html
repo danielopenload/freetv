@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <title>Zapping TV - Ventana</title>
 <style>
+  
+  @font-face {
+  font-family: 'Digital7';
+  src: url('digital7.ttf') format('truetype');
+}
+  
 body { margin:0; background:black; font-family:Arial; overflow:hidden; }
 #player { width:100vw; height:100vh; position:relative; outline:none; }
 .overlay {
@@ -70,7 +76,8 @@ iframe, video {
   padding: 3px 6px;
   border-radius: 6px;
   z-index: 20;
-  font-family: monospace;
+    font-family: 'Digital7', monospace;
+  text-shadow: 1px 1px 2px white;
 }
 
 /* === Fecha arriba izquierda === */
