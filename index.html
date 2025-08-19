@@ -4,12 +4,7 @@
 <meta charset="UTF-8">
 <title>Zapping TV - Ventana</title>
 <style>
-  
-  @font-face {
-  font-family: 'Digital7';
-  src: url('digital7.ttf') format('truetype');
-}
-  
+
 body { margin:0; background:black; font-family:Arial; overflow:hidden; }
 #player { width:100vw; height:100vh; position:relative; outline:none; }
 .overlay {
@@ -73,11 +68,11 @@ iframe, video {
   color: lime;
   border: 1px solid rgba(255,255,255,0.5);
   background: rgba(0,0,0,0.4);
-  padding: 3px 6px;
+  padding: 2px 6px;
   border-radius: 6px;
   z-index: 20;
-    font-family: 'Digital7', monospace;
-  text-shadow: 1px 1px 2px white;
+  font-family: monospace;
+  text-shadow: 2px 2px 2px black;
 }
 
 /* === Fecha arriba izquierda === */
@@ -90,10 +85,11 @@ iframe, video {
   color: Cyan;
   border: 1px solid rgba(255,255,255,0.5);
   background: rgba(0,0,0,0.4);
-  padding: 3px 5px;
+  padding: 3px 6px;
   border-radius: 6px;
   z-index: 20;
   font-family: monospace;
+  text-shadow: 2px 2px 2px black;
 }
 </style>
 </head>
@@ -134,7 +130,7 @@ actualizarFechaHora();
 // === Lista de canales ===
 const canales = [
     { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
-    { title: "TV PUBLICA", type: "youtube", url: "LwYRDMkKeXY" },
+    { title: "TV PUBLICA", type: "youtube", url: "OhiyOCZ8EeY" },
     { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
     { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
     { title: "TELEFE", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
