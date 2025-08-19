@@ -42,7 +42,8 @@ body { margin:0; background:black; font-family:Arial; overflow:hidden; }
 .canal.activo { 
   opacity:1; 
   font-weight:bold; 
-  color:red; 
+  color:red;
+  border: 1px solid black;
   background: white;
   box-shadow: 2px 2px 6px black;
   
@@ -53,7 +54,7 @@ iframe, video {
   object-fit:cover;
 }
 .canal.zoom {
- transform: scale(1.2);
+ transform: scale(1.1);
   transition: transform 0.2s;
   background: red;
   color: white;
@@ -273,4 +274,5 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
 
