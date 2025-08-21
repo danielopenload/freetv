@@ -135,7 +135,7 @@ actualizarFechaHora();
 const canales = [
     { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
     { title: "TV PUBLICA", type: "youtube", url: "OhiyOCZ8EeY" },
-    { title: "TWITCH EL9", type: "twitch", channel: "elnueveenvivo" },
+    { title: "EL9", type: "twitch", channel: "elnueveenvivo" },
     { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
     { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
     { title: "TELEFE", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
@@ -178,9 +178,7 @@ const canales = [
   { title: "UCL", type: "m3u8", url: "https://livedelta.cdn.antel.net.uy/out/u/url_canalu_3.m3u8" },
     { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
   
- 
-];
-
+ ];
 
 const barraDiv = document.getElementById("barra");
 const playerDiv = document.getElementById("player");
@@ -215,12 +213,19 @@ function actualizarVentana(){
 function limpiarPlayer(){
   if(currentHls){ currentHls.destroy(); currentHls=null; }
   if(currentVideo){ 
-    try { currentVideo.pause(); currentVideo.muted=true; currentVideo.src=""; currentVideo.load(); } catch(e){}
-    currentVideo.remove(); currentVideo=null; 
+    try { 
+      currentVideo.pause(); 
+      currentVideo.muted=true; 
+      currentVideo.src=""; 
+      currentVideo.load(); 
+    } catch(e){}
+    currentVideo.remove(); 
+    currentVideo=null; 
   }
   if(currentIframe){ 
     try { currentIframe.src="about:blank"; } catch(e){}
-    currentIframe.remove(); currentIframe=null; 
+    currentIframe.remove(); 
+    currentIframe=null; 
   }
   playerDiv.innerHTML="";
 }
@@ -245,7 +250,10 @@ function cargarCanal(ch){
 
   } else if(ch.type==="m3u8"){
     const video=document.createElement("video");
-    video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
+    video.autoplay=true; 
+    video.controls=false; 
+    video.muted=true;   // arranca muteado para que permita autoplay
+    video.playsInline=true;
     playerDiv.appendChild(video);
     currentVideo=video;
     if(Hls.isSupported()){
@@ -256,7 +264,12 @@ function cargarCanal(ch){
     } else if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src=ch.url;
     }
-    video.play();
+    // Intentar autoplay forzado
+    video.play().then(()=>{
+      setTimeout(()=>{ video.muted=false; }, 800); // se activa audio al segundo
+    }).catch(err=>{
+      console.log("Autoplay bloqueado:", err);
+    });
 
   } else if(ch.type==="dailymotion"){
     const iframe=document.createElement("iframe");
@@ -311,3 +324,4 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
+
