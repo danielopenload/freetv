@@ -135,6 +135,7 @@ actualizarFechaHora();
 const canales = [
     { title: "CANAL 7", type: "m3u8", url: "https://stream.arcast.com.ar/c7nq/ngrp:c7nq_all/playlist.m3u8" },
     { title: "TV PUBLICA", type: "youtube", url: "OhiyOCZ8EeY" },
+    { title: "TWITCH EL9", type: "twitch", channel: "elnueveenvivo" },
     { title: "A24", type: "youtube", url: "ArKbAx1K-2U" },
     { title: "CANAL 13", type: "m3u8", url: "https://live-01-02-eltrece.vodgc.net:443/eltrecetv/tracks-v3a1/mono.m3u8" },
     { title: "TELEFE", type: "m3u8", url: "https://telefeviacom1.akamaized.net/hls/live/2037987/viacomINT/TOK/master-wild1.m3u8" },
@@ -158,7 +159,6 @@ const canales = [
     { title: "CGTN", type: "youtube", url: "lPbE2DSWLoE" },
     { title: "TELEMUNDO", type: "youtube", url: "sfQW4Fp0h88" },
     { title: "UNIVISION", type: "youtube", url: "V4C7VNfRATA" },
-    { title: "ADN", type: "youtube", url: "d6sRTSG4rgs" },
     { title: "NTN24", type: "youtube", url: "PTqeoIrXfWg" },
     { title: "F10", type: "m3u8", url: "https://tv2.bitstreaming.net:3235/multi_live/play_720.m3u8" },
     { title: "RCN", type: "youtube", url: "-8ItzGB4j7o" },
@@ -213,35 +213,16 @@ function actualizarVentana(){
 
 // === Limpiar player antes de cargar otro canal ===
 function limpiarPlayer(){
-  // Detener HLS
-  if(currentHls){ 
-    currentHls.destroy(); 
-    currentHls = null; 
-  }
-
-  // Detener video
+  if(currentHls){ currentHls.destroy(); currentHls=null; }
   if(currentVideo){ 
-    try {
-      currentVideo.pause();       
-      currentVideo.muted = true;  
-      currentVideo.src = "";      
-      currentVideo.load();        
-    } catch(e){}
-    currentVideo.remove(); 
-    currentVideo = null; 
+    try { currentVideo.pause(); currentVideo.muted=true; currentVideo.src=""; currentVideo.load(); } catch(e){}
+    currentVideo.remove(); currentVideo=null; 
   }
-
-  // Detener iframe
   if(currentIframe){ 
-    try {
-      currentIframe.src = "about:blank";       
-    } catch(e){}
-    currentIframe.remove(); 
-    currentIframe = null; 
+    try { currentIframe.src="about:blank"; } catch(e){}
+    currentIframe.remove(); currentIframe=null; 
   }
-
-  // Limpiar contenedor
-  playerDiv.innerHTML = "";
+  playerDiv.innerHTML="";
 }
 
 // === Cargar canal seleccionado ===
@@ -278,18 +259,31 @@ function cargarCanal(ch){
     video.play();
 
   } else if(ch.type==="dailymotion"){
-    const iframe = document.createElement("iframe");
-    iframe.src = ch.url;
-    iframe.allowFullscreen = true;
-    iframe.frameBorder = 0;
-    iframe.allow = "autoplay; encrypted-media; web-share"; 
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
+    const iframe=document.createElement("iframe");
+    iframe.src=ch.url;
+    iframe.allowFullscreen=true;
+    iframe.frameBorder=0;
+    iframe.allow="autoplay; encrypted-media; web-share";
+    iframe.style.width="100%";
+    iframe.style.height="100%";
     playerDiv.appendChild(iframe);
-    currentIframe = iframe;
+    currentIframe=iframe;
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
+    playerDiv.appendChild(overlay);
 
-    const overlay = document.createElement("div");
-    overlay.className = "overlay";
+  } else if(ch.type==="twitch"){
+    const iframe=document.createElement("iframe");
+    iframe.src=`https://player.twitch.tv/?channel=${ch.channel}&parent=danielopenload.github.io&autoplay=true`;
+    iframe.allowFullscreen=true;
+    iframe.frameBorder=0;
+    iframe.allow="autoplay; encrypted-media";
+    iframe.style.width="100%";
+    iframe.style.height="100%";
+    playerDiv.appendChild(iframe);
+    currentIframe=iframe;
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
     playerDiv.appendChild(overlay);
   }
 }
@@ -317,4 +311,3 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
-
