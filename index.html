@@ -204,22 +204,25 @@ function actualizarVentana(){
 }
 
 function limpiarPlayer(){
+  // Detener HLS
   if(currentHls){ 
     currentHls.destroy(); 
     currentHls = null; 
   }
-  
+
+  // Detener video
   if(currentVideo){ 
     try {
-      currentVideo.pause();
-      currentVideo.muted = true;               
-      currentVideo.removeAttribute("src");     
-      currentVideo.load();                     
+      currentVideo.pause();      
+      currentVideo.muted = true;  
+      currentVideo.src = "";      
+      currentVideo.load();        
     } catch(e){}
     currentVideo.remove(); 
     currentVideo = null; 
   }
 
+  // Detener iframe
   if(currentIframe){ 
     try {
       currentIframe.src = "about:blank";       
@@ -228,6 +231,7 @@ function limpiarPlayer(){
     currentIframe = null; 
   }
 
+  // Limpiar contenedor
   playerDiv.innerHTML = "";
 }
 
@@ -276,7 +280,6 @@ document.addEventListener("keydown", e=>{
 </script>
 </body>
 </html>
-
 
 
 
