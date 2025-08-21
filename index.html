@@ -172,6 +172,8 @@ const canales = [
     { title: "HONDURAS", type: "m3u8", url: "https://stream.radiosmundiales.com:19360/globotvhonduras/720p.m3u8" },
     { title: "OROMAR TV", type: "m3u8", url: "https://stream.oromar.tv/hls/oromartv_hi/index.m3u8" },
     { title: "GAMANOTICIAS", type: "m3u8", url: "https://stream.esradioecuador.com/hls/stream.m3u8" },
+    { title: "RED UNO", type: "dailymotion", url: "https://geo.dailymotion.com/player.html?video=x9n2qyk" },
+  { title: "UNITEL", type: "dailymotion", url: "https://geo.dailymotion.com/player.html?video=x7vsezg" },
     { title: "EL GARAGE", type: "m3u8", url: "https://stream1.sersat.com/hls/garagetv.m3u8" }
 ];
 
@@ -185,6 +187,7 @@ let currentIframe = null;
 let currentVideo = null;
 let currentHls = null;
 
+// Crear botones de canales
 canales.forEach(ch=>{
   const div = document.createElement("div");
   div.className="canal";
@@ -193,6 +196,7 @@ canales.forEach(ch=>{
 });
 const barra = barraDiv.children;
 
+// === Actualizar ventana visible de canales ===
 function actualizarVentana(){
   inicio = indice - Math.floor(ventana/2);
   if(inicio < 0) inicio = 0;
@@ -203,6 +207,7 @@ function actualizarVentana(){
   }
 }
 
+// === Limpiar player antes de cargar otro canal ===
 function limpiarPlayer(){
   // Detener HLS
   if(currentHls){ 
@@ -213,7 +218,7 @@ function limpiarPlayer(){
   // Detener video
   if(currentVideo){ 
     try {
-      currentVideo.pause();      
+      currentVideo.pause();       
       currentVideo.muted = true;  
       currentVideo.src = "";      
       currentVideo.load();        
@@ -235,10 +240,12 @@ function limpiarPlayer(){
   playerDiv.innerHTML = "";
 }
 
+// === Cargar canal seleccionado ===
 function cargarCanal(ch){
   limpiarPlayer();
   barra[indice].classList.add("zoom");
   setTimeout(()=>{ barra[indice].classList.remove("zoom"); },200);
+
   if(ch.type==="youtube"){
     const iframe=document.createElement("iframe");
     iframe.src=`https://www.youtube.com/embed/${ch.url}?autoplay=1&mute=0`;
@@ -250,6 +257,7 @@ function cargarCanal(ch){
     const overlay=document.createElement("div");
     overlay.className="overlay";
     playerDiv.appendChild(overlay);
+
   } else if(ch.type==="m3u8"){
     const video=document.createElement("video");
     video.autoplay=true; video.controls=false; video.muted=false; video.playsInline=true;
@@ -264,23 +272,45 @@ function cargarCanal(ch){
       video.src=ch.url;
     }
     video.play();
+
+  } else if(ch.type==="dailymotion"){
+    const iframe = document.createElement("iframe");
+    iframe.src = ch.url;
+    iframe.allowFullscreen = true;
+    iframe.frameBorder = 0;
+    iframe.allow = "autoplay; encrypted-media; web-share"; 
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    playerDiv.appendChild(iframe);
+    currentIframe = iframe;
+
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+    playerDiv.appendChild(overlay);
   }
 }
 
+// === Inicializar ===
 cargarCanal(canales[indice]);
 actualizarVentana();
 
+// === Navegación con teclado ===
 document.addEventListener("keydown", e=>{
   switch(e.key){
-    case "ArrowRight": indice=(indice+1)%canales.length; actualizarVentana(); break;
-    case "ArrowLeft": indice=(indice-1+canales.length)%canales.length; actualizarVentana(); break;
-    case "Enter": case "OK": cargarCanal(canales[indice]); break;
+    case "ArrowRight": 
+      indice=(indice+1)%canales.length; 
+      actualizarVentana(); 
+      break;
+    case "ArrowLeft": 
+      indice=(indice-1+canales.length)%canales.length; 
+      actualizarVentana(); 
+      break;
+    case "Enter": case "OK": 
+      cargarCanal(canales[indice]); 
+      break;
   }
 });
 </script>
 </body>
 </html>
-
-
-
 
